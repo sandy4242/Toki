@@ -63,6 +63,6 @@ impl Block {
             self.hash = self.calculate_hash();
         }
 
-        println!("⛏️ Block mined: {}", self.hash);
+        println!("Block mined: {}", self.hash);
     }
 }

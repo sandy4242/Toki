@@ -31,19 +31,19 @@ async fn main() {
         if let Some(addr) = env::args().nth(1) {
     let remote: libp2p::Multiaddr = addr.parse().expect("Invalid multiaddr");
     swarm.dial(remote).expect("Dial failed");
-    println!("📞 Dialing {}", addr);
+    println!("Calling {}", addr);
 }
 
-    println!("🚀 Toki node started");
+    println!("Toki node started");
 
     loop {
         match swarm.select_next_some().await {
             SwarmEvent::NewListenAddr { address, .. } => {
-                println!("📡 Listening on {}", address);
+                println!("Event Listening on {}", address);
             }
 
             SwarmEvent::ConnectionEstablished { peer_id, .. } => {
-                println!("🤝 Connected to {}", peer_id);
+                println!("Event Connected to {}", peer_id);
             }
 
             SwarmEvent::Behaviour(network::TokiBehaviourEvent::Gossipsub(
@@ -52,17 +52,17 @@ async fn main() {
                 let msg: NetworkMessage = match serde_json::from_slice(&message.data) {
                     Ok(msg) => msg,
                     Err(_) => {
-                        println!("⚠️ Invalid network message");
+                        println!("Invalid network message");
                         continue;
                     }
                 };
 
                 match msg {
                     NetworkMessage::NewTransaction(tx) => {
-                        println!("📨 Received transaction: {:?}", tx);
+                        println!("Received transaction: {:?}", tx);
                     }
                     NetworkMessage::NewBlock(block) => {
-                        println!("📦 Received block: {}", block.index);
+                        println!("Received block: {}", block.index);
                     }
                     _ => {}
                 }
