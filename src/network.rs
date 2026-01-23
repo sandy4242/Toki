@@ -52,7 +52,7 @@ pub fn build_swarm() -> Swarm<TokiBehaviour> {
     let id_keys = identity::Keypair::generate_ed25519();
     let peer_id = libp2p::PeerId::from(id_keys.public());
 
-    println!("🆔 PeerId: {}", peer_id);
+    println!("PeerId: {}", peer_id);
 
     let transport = Transport::new(libp2p::tcp::Config::default())
         .upgrade(libp2p::core::upgrade::Version::V1)

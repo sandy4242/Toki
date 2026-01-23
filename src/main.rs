@@ -11,6 +11,7 @@ use std::env;
 
 #[tokio::main]
 async fn main() {
+    let mut blockchain = blockchain::Blockchain::new(4);
     let mut swarm = build_swarm();
 
     swarm
@@ -28,11 +29,11 @@ async fn main() {
         .listen_on("/ip4/0.0.0.0/tcp/0".parse().unwrap())
         .unwrap();
 
-        if let Some(addr) = env::args().nth(1) {
-    let remote: libp2p::Multiaddr = addr.parse().expect("Invalid multiaddr");
-    swarm.dial(remote).expect("Dial failed");
-    println!("Calling {}", addr);
-}
+    if let Some(addr) = env::args().nth(1) {
+        let remote: libp2p::Multiaddr = addr.parse().expect("Invalid multiaddr");
+        swarm.dial(remote).expect("Dial failed");
+        println!("Calling {}", addr);
+    }
 
     println!("Toki node started");
 
@@ -59,10 +60,21 @@ async fn main() {
 
                 match msg {
                     NetworkMessage::NewTransaction(tx) => {
-                        println!("Received transaction: {:?}", tx);
+                        if blockchain.add_transaction(tx.clone()) {
+                            println!("Tx accepted into mempool");
+                        } else {
+                            println!("Tx rejected");
+                        }
                     }
                     NetworkMessage::NewBlock(block) => {
-                        println!("Received block: {}", block.index);
+                        let mut new_chain = blockchain.chain.clone();
+                        new_chain.push(block.clone());
+
+                        if blockchain.try_replace_chain(new_chain) {
+                            println!("Block accepted into chain");
+                        } else {
+                            println!("Block rejected");
+                        }
                     }
                     _ => {}
                 }
